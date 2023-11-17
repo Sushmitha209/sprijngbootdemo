@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.entity.User;
@@ -29,6 +30,11 @@ public class ParentController {
 		return "registrationPage";
 	}
 	
+	@GetMapping("/loginPage")
+	public String loginPage(User user) {
+		return "loginPage";
+	}
+	
 	@PostMapping("/register")
 	@ResponseBody
 	public String register(@ModelAttribute("user") User user) {
@@ -37,5 +43,18 @@ public class ParentController {
 		user.setPassword(encodedPassword);
 		userRepository.save(user);
 		return "Saved success";
+	}
+	
+	
+	@PostMapping("/login")
+	@ResponseBody
+	public String loginProcess(@RequestParam("username")String username,@RequestParam("password")String password) {
+		
+		User dbUser=userRepository.findByUsername(username);
+		Boolean isPasswordMatch=BCrypt.checkpw(password, dbUser.getPassword());
+		if(isPasswordMatch)
+			return "welcome user";
+		else
+			return "Failed to login";
 	}
 }
